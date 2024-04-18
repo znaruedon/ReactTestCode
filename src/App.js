@@ -24,13 +24,21 @@ const App = () => {
             // กลับ item ที่ถูกย้ายไป Fruits กลับมาที่ All Items
             fruits.forEach(item => {
                 setFruits(prevFruits => prevFruits.filter(i => i !== item));
+                if (!allItems.includes(item)) {
                 setAllItems(prevItems => [...prevItems, item]);
+                }
             });
             // กลับ item ที่ถูกย้ายไป Vegetables กลับมาที่ All Items
             vegetables.forEach(item => {
                 setVegetables(prevVegetables => prevVegetables.filter(i => i !== item));
+                if (!allItems.includes(item)) {
                 setAllItems(prevItems => [...prevItems, item]);
+                }
             });
+
+             // ลบค่าที่ซ้ำใน Fruits และ Vegetables
+             setFruits(prevFruits => prevFruits.filter(item => !vegetables.includes(item)));
+             setVegetables(prevVegetables => prevVegetables.filter(item => !fruits.includes(item)));
         }, 5000);
 
         return () => clearTimeout(timeout);
@@ -43,33 +51,43 @@ const App = () => {
             setAllItems(prevState => prevState.filter(i => i !== item));
             setTimeout(() => {
                 setFruits(prevState => prevState.filter(i => i !== item));
-                setAllItems(prevState => [...prevState, item]);
+                setAllItems(prevState => {
+                    const filteredItems = prevState.filter(i => i.name !== item.name);
+                    if (!filteredItems.some(i => i.name === item.name)) {
+                        return [...filteredItems, item];
+                    }
+                    return filteredItems;
+                });
             }, 5000);
         } else {
             setVegetables(prevState => [...prevState, item]);
             setAllItems(prevState => prevState.filter(i => i !== item));
             setTimeout(() => {
                 setVegetables(prevState => prevState.filter(i => i !== item));
-                setAllItems(prevState => [...prevState, item]);                
+                setAllItems(prevState => {
+                    const filteredItems = prevState.filter(i => i.name !== item.name);
+                    if (!filteredItems.some(i => i.name === item.name)) {
+                        return [...filteredItems, item];
+                    }
+                    return filteredItems;
+                });
             }, 5000);
         }
     };
+    
 
     const handleRemoveItemClick = (item, listType) => {
-        if (listType === 'Fruit') {
+        // ตรวจสอบว่า item ไม่อยู่ใน allItems ก่อนที่จะทำการลบ
+        if (!allItems.some(i => i.name === item.name)) {
+            if (listType === 'Fruit') {
             setFruits(prevState => prevState.filter(i => i !== item));
             setAllItems(prevItems => [...prevItems, item]);
-            setTimeout(() => {
-                setAllItems(prevState => [...prevState, item]);               
-            }, 5000);
-        } else {
+            } else if (listType === 'Vegetable') {
             setVegetables(prevState => prevState.filter(i => i !== item));
             setAllItems(prevItems => [...prevItems, item]);
-            setTimeout(() => {
-                setAllItems(prevState => [...prevState, item]);                                
-            }, 5000);
+            }
         }
-    };
+        };
 
     return (
         <div className="container">
